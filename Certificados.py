@@ -32,7 +32,14 @@ certificados = [
         "emissao": "Setembro de 2026",
         "carga_horaria": "20 horas",
         "link": "https://www.linkedin.com/in/wenndy-ferreira-875a32251/overlay/Certifications/2016697874/treasury/?profileId=ACoAAD5ETVkBFr7TlzPb9cxU3x1tHE8kRnWQvvc"},
-    
+
+    {
+        "titulo": "Jornada Python",
+        "instituicao": "Hashtag Treinamentos",
+        "emissao": "Outubro de 2026",
+        "carga_horaria": "8 horas",
+        "link": "https://www.linkedin.com/in/wenndy-ferreira-875a32251/overlay/Certifications/1443791811/treasury/?profileId=ACoAAD5ETVkBFr7TlzPb9cxU3x1tHE8kRnWQvvc"},
+
     {
         "titulo": "Redes de Computadores",
         "instituicao": "IFRS",
@@ -121,10 +128,9 @@ def preparar_imagem_botao(caminho, modificacao):
 
 # FUNÇÃO PRINCIPAL
 def exibir_certificados():
-
+  
     # ESTILO VISUAL
-    st.markdown("""
-    <style>
+    st.markdown("""<style>
 
     .cert-titulo {
         font-size: 34px;
@@ -145,23 +151,50 @@ def exibir_certificados():
         color: #BDBDBD;
         margin-bottom: 30px;}
 
-    /* ORGANIZAÇÃO DOS CERTIFICADOS */
+    /* CERTIFICADOS EM UMA ÚNICA LINHA */
 
-    .cert-grade {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 24px;
-        margin-top: 20px;
-        margin-bottom: 30px;}
+ 
+.cert-grade {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    max-width: 100%;
+    gap: 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 15px 5px 25px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #DC2626 #202020;
+}
 
-    .cert-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        text-align: center;
-        gap: 12px;
-        min-width: 0;}
+.cert-item {
+    flex: 0 0 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+
+    /* BARRA DE ROLAGEM VERMELHA */
+
+    .cert-grade::-webkit-scrollbar {
+        height: 7px;}
+
+    .cert-grade::-webkit-scrollbar-track {
+        background: #202020;
+        border-radius: 10px;}
+
+    .cert-grade::-webkit-scrollbar-thumb {
+        background: #DC2626;
+        border-radius: 10px;}
 
     /* BOTÃO REDONDO */
 
@@ -213,17 +246,14 @@ def exibir_certificados():
         text-align: center;
         line-height: 1.4;}
 
-    /* RESPONSIVIDADE */
-
-    @media (max-width: 900px) {
-        .cert-grade {
-            grid-template-columns: repeat(3, minmax(0, 1fr));}
-    }
+    /* RESPONSIVIDADE PARA CELULARES */
 
     @media (max-width: 550px) {
         .cert-grade {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 25px 12px;}
+            gap: 15px;}
+
+        .cert-item {
+            flex: 0 0 125px;}
 
         .cert-botao {
             width: 85px;
@@ -231,9 +261,7 @@ def exibir_certificados():
 
         .cert-nome {
             font-size: 12px;}
-    }
-
-    </style>""", unsafe_allow_html=True)
+    } </style>""", unsafe_allow_html=True)
 
 # TÍTULO
 
