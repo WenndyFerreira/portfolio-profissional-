@@ -19,9 +19,6 @@ IMAGEM_WIFI = PASTA_PROJETO / "WIFI.png"
 
 st.set_page_config(page_title="Wenndy Ferreira | Portfólio", page_icon=str(FOTO) if FOTO.exists() else "💻", layout="wide")
 
-st.markdown("""<style> @media (min-width: 1024px) {.stMainBlockContainer {zoom: 0.85;     
-} }</style>""", unsafe_allow_html=True)
-
 if "pagina" not in st.session_state:
     st.session_state.pagina = "inicio"
 
