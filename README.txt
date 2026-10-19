@@ -1,49 +1,66 @@
-# Dashboard Acadêmico
+# Portfólio Profissional
 
-### Sistema de acompanhamento e análise de desempenho acadêmico
+### Desenvolvimento de Software | Python | Análise de Dados | Tecnologia
 
-Aplicação web desenvolvida em **Python**, utilizando **Streamlit**, para acompanhar notas, organizar disciplinas e visualizar indicadores de desempenho acadêmico durante a graduação em Análise e Desenvolvimento de Sistemas (ADS).
+Bem-vindo ao meu portfólio profissional!
 
-## Funcionalidades
+Sou estudante de **Análise e Desenvolvimento de Sistemas (ADS)**, com foco no desenvolvimento de habilidades em programação, análise de dados, automação de processos e criação de soluções digitais.
 
-- Visualização de notas e desempenho acadêmico.
-- Gráficos interativos para análise dos resultados.
-- Organização das avaliações por disciplina.
-- Indicadores de desempenho e acompanhamento das notas.
-- Área administrativa com autenticação.
-- Cadastro, atualização e exclusão de registros acadêmicos.
-- Acesso público para visualização dos dados.
-- Armazenamento em banco de dados na nuvem.
+Este repositório reúne meu portfólio, desenvolvido para apresentar minha trajetória acadêmica, competências técnicas, certificações e projetos práticos.
 
-## Tecnologias utilizadas
+## Sobre o portfólio
 
-- **Python:** desenvolvimento da aplicação.
-- **Streamlit:** interface web interativa.
-- **Pandas:** organização e tratamento dos dados.
-- **Plotly:** criação de gráficos interativos.
-- **Supabase:** autenticação e integração com o banco de dados.
-- **PostgreSQL:** armazenamento dos registros acadêmicos.
-- **Git e GitHub:** versionamento do código.
-- **Streamlit Community Cloud:** publicação da aplicação.
+O objetivo deste projeto é disponibilizar um espaço digital para apresentar minha evolução profissional e demonstrar, na prática, os conhecimentos adquiridos durante minha formação.
 
-## Segurança e controle de acesso
+O portfólio reúne:
 
-A aplicação possui dois modos de utilização:
+- Apresentação pessoal e profissional.
+- Formação acadêmica.
+- Competências técnicas.
+- Cursos e certificações.
+- Projetos desenvolvidos.
+- Links para o GitHub e LinkedIn.
+- Informações de contato profissional.
 
-**Visitante:** permite visualizar os indicadores e gráficos acadêmicos, sem autorização para modificar os registros.
+## Projetos em destaque
 
-**Administrador:** permite gerenciar disciplinas e notas mediante autenticação.
+### Dashboard Acadêmico
 
-As credenciais são configuradas por variáveis de ambiente e Secrets, sem necessidade de incluí-las no código-fonte público.
+Aplicação desenvolvida em Python e Streamlit para acompanhamento de notas e desempenho acadêmico, com gráficos interativos, integração ao Supabase e área administrativa com autenticação.
 
-## Objetivo do projeto
+**Tecnologias:** Python, Streamlit, Pandas, Plotly, Supabase, PostgreSQL e SQL.
 
-Aplicar conhecimentos de programação, análise de dados, banco de dados e desenvolvimento de aplicações web na construção de uma solução prática para acompanhamento acadêmico.
+### Chatbot com Inteligência Artificial
 
-## Demonstração
+Projeto de aplicação conversacional desenvolvido com Python, Streamlit e integração com API de inteligência artificial, explorando a construção de interfaces interativas e o consumo de serviços externos.
 
-**Acesse a aplicação:** [Inserir link do Streamlit]
+**Tecnologias:** Python, Streamlit e APIs de IA.
 
-## Autor
+## Conhecimentos técnicos
 
-Projeto desenvolvido como parte dos estudos e da construção de um portfólio profissional na área de tecnologia.
+- **Programação:** Python e lógica de programação.
+- **Análise de dados:** Pandas, Power BI e visualização de dados.
+- **Banco de dados:** SQL, PostgreSQL e Supabase.
+- **Desenvolvimento de aplicações:** Streamlit.
+- **Ferramentas:** Visual Studio Code, Git e GitHub.
+- **Integrações:** APIs e serviços em nuvem.
+
+## Objetivo profissional
+
+Continuar desenvolvendo conhecimentos em tecnologia e aplicar minhas habilidades na construção de soluções que integrem programação, dados e inovação.
+
+Este portfólio representa minha evolução acadêmica e profissional, sendo atualizado conforme novos projetos, competências e certificações são concluídos.
+
+## Acesse meu portfólio
+
+**Portfólio online:** [Adicionar link do site publicado]
+
+**LinkedIn:** [Adicionar link do LinkedIn]
+
+**GitHub:** [wenndyferreira](https://github.com/wenndyferreira)
+
+---
+
+**Desenvolvido por Wenndy Ferreira**
+
+*Portfólio em constante evolução.*
