@@ -185,10 +185,7 @@ CSS = f"""
 </style>
 """
 
-# ---------------------------------------------------------------------------
 # IMAGENS
-# ---------------------------------------------------------------------------
-
 
 @st.cache_data(show_spinner=False)
 def _carregar_miniatura(caminho: str):
@@ -213,12 +210,7 @@ def exibir_imagem(caminho: Path, padronizar: bool = False) -> None:
     else:
         st.image(str(caminho), use_container_width=True)
 
-
-# ---------------------------------------------------------------------------
 # COMPONENTES
-# ---------------------------------------------------------------------------
-
-
 def _cartao_projeto(indice: int, projeto: dict) -> None:
     """Desenha um cartão de projeto."""
     tags = "".join(
@@ -255,12 +247,7 @@ def _cabecalho_pagina() -> None:
         unsafe_allow_html=True,
     )
 
-
-# ---------------------------------------------------------------------------
 # PÁGINA PRINCIPAL
-# ---------------------------------------------------------------------------
-
-
 def exibir_projetos() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
 
