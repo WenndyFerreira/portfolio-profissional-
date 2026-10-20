@@ -168,8 +168,7 @@ def exibir_certificados():
     box-sizing: border-box;
     scroll-behavior: smooth;
     scrollbar-width: thin;
-    scrollbar-color: #DC2626 #202020;
-}
+    scrollbar-color: #DC2626 #202020;}
 
 .cert-item {
     flex: 0 0 190px;
@@ -178,10 +177,7 @@ def exibir_certificados():
     align-items: center;
     justify-content: flex-start;
     text-align: center;
-    gap: 12px;
-    min-width: 0;
-}
-
+    gap: 12px; min-width: 0;}
 
     /* BARRA DE ROLAGEM VERMELHA */
 
@@ -266,9 +262,7 @@ def exibir_certificados():
 # TÍTULO
 
     st.markdown("""
-    <div class="cert-titulo">
-        Certificações e Formação Complementar
-    </div>
+    <div class="cert-titulo">Certificações e Formação Complementar:</div>
 
     <div class="cert-linha"></div>
 
