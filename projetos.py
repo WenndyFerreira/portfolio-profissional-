@@ -1,191 +1,289 @@
-
-import streamlit as st
+from html import escape
 from pathlib import Path
+import streamlit as st
 from PIL import Image, ImageOps
 
-# CONFIGURAÇÕES DOS ARQUIVOS
-
+# CONFIGURAÇÃO
 PASTA_PROJETO = Path(__file__).resolve().parent
 
-IMAGEM_CHATBOT = PASTA_PROJETO / "Chatbot.png"
-IMAGEM_ANALISADOR = PASTA_PROJETO / "Analisador.png"
-IMAGEM_DIAGNOSTICO = PASTA_PROJETO / "Diagnóstico.png"
-IMAGEM_AUTOMATIZADOR = PASTA_PROJETO / "Automatizador.png"
-IMAGEM_WIFI = PASTA_PROJETO / "WIFI.png"
 IMAGEM_BANNER = PASTA_PROJETO / "banner2.png"
 IMAGEM_ESPERAR = PASTA_PROJETO / "Oqueesperardemim_.png"
-IMAGEM_DASHBOARD = PASTA_PROJETO / "Dashboard.png"
+
+TAMANHO_MINIATURA = (600, 400)
+COLUNAS_POR_LINHA = 3
+
+# Cores do tema
+COR_DESTAQUE = "#DC2626"
+COR_TEXTO = "#F4F4F5"
+COR_TEXTO_SUAVE = "#A1A1AA"
+COR_BORDA = "rgba(255, 255, 255, 0.10)"
+COR_BORDA_HOVER = "rgba(220, 38, 38, 0.60)"
+COR_FUNDO_CARD = "rgba(255, 255, 255, 0.03)"
+
+# Cada projeto é um dicionário: para adicionar ou remover, edite só esta lista.
+PROJETOS = [
+    {
+        "titulo": "Dashboard Acadêmico",
+        "descricao": (
+            "Sistema para acompanhamento de notas, atividades "
+            "e desempenho acadêmico, com indicadores visuais."
+        ),
+        "tecnologias": ["Python", "Streamlit"],
+        "imagem": PASTA_PROJETO / "Dashboard.png",
+        "botao": "Ver site",
+        "link": "https://dashboard-academico-wenndy.streamlit.app/",
+    },
+    {
+        "titulo": "ChatBot com Inteligência Artificial",
+        "descricao": (
+            "Chatbot integrado à API do Google Gemini para "
+            "conversas com Inteligência Artificial."
+        ),
+        "tecnologias": ["Python", "Streamlit", "Gemini API"],
+        "imagem": PASTA_PROJETO / "Chatbot.png",
+        "botao": "Ver site",
+        "link": "https://chatbotwe.streamlit.app/",
+    },
+    {
+        "titulo": "Analisador de Rede Wi-Fi",
+        "descricao": (
+            "Ferramenta para diagnóstico local de redes sem fio, "
+            "consulta de informações e análise de conectividade no Windows."
+        ),
+        "tecnologias": ["Python", "Redes", "Windows"],
+        "imagem": PASTA_PROJETO / "WIFI.png",
+        "botao": "Ver código no GitHub",
+        "link": "https://github.com/WenndyFerreira/Analisador-de-Redes-Wi-Fi",
+    },
+    {
+        "titulo": "Analisador de Logs de Segurança",
+        "descricao": (
+            "Análise de registros de autenticação para identificar "
+            "tentativas suspeitas de acesso e gerar relatórios de segurança."
+        ),
+        "tecnologias": ["Python", "Segurança", "Logs"],
+        "imagem": PASTA_PROJETO / "Analisador.png",
+        "botao": "Ver código no GitHub",
+        "link": "https://github.com/WenndyFerreira/Analisador-de-Logs-de-Seguran-a",
+    },
+    {
+        "titulo": "Diagnóstico de Computadores",
+        "descricao": (
+            "Consulta informações do sistema operacional, processador, "
+            "memória RAM, armazenamento e interfaces de rede."
+        ),
+        "tecnologias": ["Python", "Hardware", "Sistema"],
+        "imagem": PASTA_PROJETO / "Diagnóstico.png",
+        "botao": "Ver código no GitHub",
+        "link": "https://github.com/WenndyFerreira/Diagn-stico-de-Computadores",
+    },
+    {
+        "titulo": "Automatizador de Relatórios Excel",
+        "descricao": (
+            "Importa planilhas, analisa indicadores, identifica "
+            "inconsistências e gera relatórios formatados automaticamente."
+        ),
+        "tecnologias": ["Python", "Pandas", "OpenPyXL"],
+        "imagem": PASTA_PROJETO / "Automatizador.png",
+        "botao": "Ver código no GitHub",
+        "link": "https://github.com/WenndyFerreira/Automatizador-de-Relat-rios-Excel",
+    },
+]
+
+# ---------------------------------------------------------------------------
+# ESTILO
+# ---------------------------------------------------------------------------
+
+CSS = f"""
+<style>
+    .pagina-titulo {{
+        font-size: 2.2rem;
+        font-weight: 750;
+        line-height: 1.15;
+        color: {COR_TEXTO};
+        margin: 0 0 0.4rem 0;
+    }}
+
+    .pagina-linha {{
+        width: 64px;
+        height: 4px;
+        background: {COR_DESTAQUE};
+        border-radius: 999px;
+        margin-bottom: 0.9rem;
+    }}
+
+    .pagina-subtitulo {{
+        max-width: 62ch;
+        color: {COR_TEXTO_SUAVE};
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin-bottom: 1.8rem;
+    }}
+
+    /* Card do projeto: o container recebe a key "card_<n>" */
+    [class*="st-key-card_"] {{
+        background: {COR_FUNDO_CARD};
+        border: 1px solid {COR_BORDA};
+        border-radius: 14px;
+        padding: 1.1rem 1.1rem 1rem 1.1rem;
+        transition: border-color 0.2s ease;
+    }}
+
+    [class*="st-key-card_"]:hover {{
+        border-color: {COR_BORDA_HOVER};
+    }}
+
+    [class*="st-key-card_"] img {{
+        border-radius: 10px;
+    }}
+
+    .card-titulo {{
+        font-size: 1.2rem;
+        font-weight: 700;
+        line-height: 1.3;
+        color: {COR_TEXTO};
+        margin: 0.9rem 0 0.4rem 0;
+        min-height: 3.2rem;
+    }}
+
+    .card-descricao {{
+        font-size: 0.95rem;
+        line-height: 1.55;
+        color: {COR_TEXTO_SUAVE};
+        min-height: 6rem;
+        margin-bottom: 0.7rem;
+    }}
+
+    .card-tags {{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        min-height: 2rem;
+        margin-bottom: 0.9rem;
+    }}
+
+    .tag {{
+        font-size: 0.78rem;
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        color: {COR_TEXTO};
+        background: rgba(220, 38, 38, 0.14);
+        border: 1px solid rgba(220, 38, 38, 0.35);
+    }}
+
+    [class*="st-key-card_"] a[data-testid="stBaseLinkButton-secondary"]:hover,
+    [class*="st-key-card_"] a:hover {{
+        border-color: {COR_DESTAQUE};
+        color: {COR_DESTAQUE};
+    }}
+
+    @media (prefers-reduced-motion: reduce) {{
+        [class*="st-key-card_"] {{
+            transition: none;
+        }}
+    }}
+</style>
+"""
+
+# ---------------------------------------------------------------------------
+# IMAGENS
+# ---------------------------------------------------------------------------
 
 
-# FUNÇÃO PARA EXIBIR IMAGENS
-def exibir_imagem(caminho, padronizar=False):
+@st.cache_data(show_spinner=False)
+def _carregar_miniatura(caminho: str):
+    """Abre a imagem, recorta no formato padrão e mantém em cache."""
+    with Image.open(caminho) as original:
+        return ImageOps.fit(
+            original.convert("RGB"),
+            TAMANHO_MINIATURA,
+            method=Image.Resampling.LANCZOS,
+            centering=(0.5, 0.5),
+        )
 
+
+def exibir_imagem(caminho: Path, padronizar: bool = False) -> None:
+    """Exibe uma imagem; se o arquivo não existir, mostra um aviso discreto."""
     if not caminho.exists():
-        st.warning(
-            f"Imagem {caminho.name} não encontrada.")
+        st.caption(f"Imagem não encontrada: {caminho.name}")
         return
 
     if padronizar:
-
-        with Image.open(caminho) as original:
-
-            imagem = ImageOps.fit(
-                original.convert("RGB"),
-                (600, 400),
-                method=Image.Resampling.LANCZOS,
-                centering=(0.5, 0.5))
-
-        st.image(
-            imagem,
-            use_container_width=True)
-
+        st.image(_carregar_miniatura(str(caminho)), use_container_width=True)
     else:
+        st.image(str(caminho), use_container_width=True)
 
-        st.image(
-            str(caminho),
-            use_container_width=True)
 
-# FUNÇÃO PRINCIPAL: PROJETOS ACADÊMICOS
+# ---------------------------------------------------------------------------
+# COMPONENTES
+# ---------------------------------------------------------------------------
 
-def exibir_projetos():
-# BOTÃO VOLTAR AO INÍCIO
+
+def _cartao_projeto(indice: int, projeto: dict) -> None:
+    """Desenha um cartão de projeto."""
+    tags = "".join(
+        f'<span class="tag">{escape(tag)}</span>'
+        for tag in projeto["tecnologias"]
+    )
+
+    with st.container(key=f"card_{indice}"):
+        exibir_imagem(projeto["imagem"], padronizar=True)
+
+        st.markdown(
+            f'<div class="card-titulo">{escape(projeto["titulo"])}</div>'
+            f'<div class="card-descricao">{escape(projeto["descricao"])}</div>'
+            f'<div class="card-tags">{tags}</div>',
+            unsafe_allow_html=True,
+        )
+
+        st.link_button(
+            projeto["botao"],
+            projeto["link"],
+            use_container_width=True,
+        )
+
+
+def _cabecalho_pagina() -> None:
+    st.markdown(
+        '<div class="pagina-titulo">Projetos acadêmicos</div>'
+        '<div class="pagina-linha"></div>'
+        '<div class="pagina-subtitulo">'
+        "Aplicações que desenvolvi durante a graduação, de dashboards e "
+        "inteligência artificial a ferramentas de redes, segurança e "
+        "automação. O código está disponível no GitHub."
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
+
+# ---------------------------------------------------------------------------
+# PÁGINA PRINCIPAL
+# ---------------------------------------------------------------------------
+
+
+def exibir_projetos() -> None:
+    st.markdown(CSS, unsafe_allow_html=True)
 
     if st.button("⬅ Voltar ao início"):
         st.session_state.pagina = "inicio"
         st.rerun()
 
-# BANNER DOS PROJETOS
     exibir_imagem(IMAGEM_BANNER)
 
     st.divider()
+    _cabecalho_pagina()
 
-# ESTILO VISUAL
-    st.markdown(
-        """
-        <style>
+    # Percorre a lista em blocos de 3 projetos por linha
+    for inicio in range(0, len(PROJETOS), COLUNAS_POR_LINHA):
+        bloco = PROJETOS[inicio:inicio + COLUNAS_POR_LINHA]
+        colunas = st.columns(COLUNAS_POR_LINHA, gap="large")
 
-        .sobre-titulo {
-            font-size: 34px;
-            font-weight: 750;
-            margin-bottom: 8px;
-            color: #FFFFFF;}
+        for deslocamento, (coluna, projeto) in enumerate(zip(colunas, bloco)):
+            with coluna:
+                _cartao_projeto(inicio + deslocamento, projeto)
 
-        .sobre-linha {
-            width: 65px;
-            height: 4px;
-            background: #DC2626;
-            border-radius: 10px;
-            margin-bottom: 25px;}
-
-        </style>""", unsafe_allow_html=True)
-
-# TÍTULO DOS PROJETOS
-    st.markdown(
-        '<div class="sobre-titulo">'
-        'Projetos Acadêmicos:'
-        '</div>'
-        '<div class="sobre-linha"></div>',
-        unsafe_allow_html=True)
-
-# PRIMEIRA LINHA DE PROJETOS
-    col1, col2, col3 = st.columns(3, gap="large")
-
-    with col1:
-
-        st.subheader("Dashboard Acadêmico:")
-
-        st.write(
-            "Sistema desenvolvido em Python e Streamlit "
-            "para acompanhamento de notas, atividades "
-            "e desempenho acadêmico.")
-
-        exibir_imagem(IMAGEM_DASHBOARD, padronizar=True)
-
-        st.link_button("↗ EXPLORAR PROJETO | SITE", "https://dashboard-academico-wenndy.streamlit.app/", use_container_width=True)
-
-    with col2:
-
-        st.subheader("ChatBot com Inteligência Artificial:")
-
-        st.write(
-            "Projeto acadêmico desenvolvido em Python "
-            "e Streamlit, com integração à API do "
-            "Google Gemini para interação com "
-            "Inteligência Artificial.")
-
-        exibir_imagem(IMAGEM_CHATBOT, padronizar=True)
-
-        st.link_button("↗ EXPLORAR PROJETO | SITE", "https://chatbotwe.streamlit.app/", use_container_width=True)
-
-    with col3:
-
-        st.subheader("Analisador de Rede Wi-Fi:")
-
-        st.write(
-            "Ferramenta desenvolvida em Python para "
-            "diagnóstico local de redes sem fio, "
-            "consulta de informações e análise "
-            "de conectividade no Windows.")
-
-        exibir_imagem(IMAGEM_WIFI, padronizar=True)
-
-        st.link_button("↗ VER CÓDIGO NO GITHUB", "https://github.com/WenndyFerreira/Analisador-de-Redes-Wi-Fi", use_container_width=True)
-
-# ESPAÇAMENTO ENTRE AS LINHAS
-    st.write("")
-    st.write("")
-
-# SEGUNDA LINHA DE PROJETOS
-    col1, col2, col3 = st.columns(3, gap="large")
-
-    with col1:
-
-        st.subheader("Analisador de Logs de Segurança:")
-
-        st.write(
-            "Projeto desenvolvido em Python para "
-            "análise de registros de autenticação, "
-            "identificação de tentativas suspeitas "
-            "de acesso e geração de relatórios "
-            "de segurança.")
-
-        exibir_imagem(IMAGEM_ANALISADOR, padronizar=True)
-
-        st.link_button("↗ VER CÓDIGO NO GITHUB", "https://github.com/WenndyFerreira/Analisador-de-Logs-de-Seguran-a", use_container_width=True)
-
-    with col2:
-
-        st.subheader("Diagnóstico de Computadores:")
-
-        st.write(
-            "Sistema desenvolvido em Python para "
-            "consultar informações do sistema operacional, "
-            "processador, memória RAM, armazenamento "
-            "e interfaces de rede.")
-
-        exibir_imagem(IMAGEM_DIAGNOSTICO, padronizar=True)
-
-        st.link_button("↗ VER CÓDIGO NO GITHUB", "https://github.com/WenndyFerreira/Diagn-stico-de-Computadores", use_container_width=True)
-
-    with col3:
-
-        st.subheader("Automatizador de Relatórios Excel:")
-
-        st.write(
-            "Aplicação desenvolvida em Python, Pandas "
-            "e OpenPyXL para importar planilhas Excel, "
-            "analisar indicadores, identificar "
-            "inconsistências e gerar relatórios "
-            "formatados automaticamente.")
-
-        exibir_imagem(IMAGEM_AUTOMATIZADOR, padronizar=True)
-
-        st.link_button("↗ VER CÓDIGO NO GITHUB", "https://github.com/WenndyFerreira/Automatizador-de-Relat-rios-Excel", use_container_width=True)
+        st.write("")
 
     st.divider()
-    
     exibir_imagem(IMAGEM_ESPERAR)
-
     st.divider()
-
-

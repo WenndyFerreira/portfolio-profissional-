@@ -1,327 +1,423 @@
-import streamlit as st
-from pathlib import Path
-from PIL import Image
+import base64
+import re
 from html import escape
 from io import BytesIO
-import base64
+from pathlib import Path
 
-# CONFIGURAÇÕES
+import numpy as np
+import streamlit as st
+from PIL import Image
+
+# ---------------------------------------------------------------------------
+# CONFIGURAÇÃO
+# ---------------------------------------------------------------------------
+
 PASTA_PROJETO = Path(__file__).resolve().parent
-
 IMAGEM_BOTAO = PASTA_PROJETO / "BotaoCertificado.png"
 
-# LISTA DE CERTIFICADOS
-certificados = [
+# True: mostra os certificados mais recentes primeiro (usa o campo "emissao").
+# False: mantém a ordem exata da lista abaixo.
+ORDENAR_POR_DATA = True
+
+COR_DESTAQUE = "#DC2626"
+COR_TEXTO = "#F4F4F5"
+COR_TEXTO_SUAVE = "#A1A1AA"
+COR_BORDA = "rgba(255, 255, 255, 0.10)"
+COR_BORDA_HOVER = "rgba(220, 38, 38, 0.60)"
+COR_FUNDO_CARD = "rgba(255, 255, 255, 0.03)"
+
+PERFIL_LINKEDIN = "https://www.linkedin.com/in/wenndy-ferreira-875a32251/"
+_SUFIXO = "/treasury/?profileId=ACoAAD5ETVkBFr7TlzPb9cxU3x1tHE8kRnWQvvc"
+
+
+def _link_certificado(codigo: str) -> str:
+    return f"{PERFIL_LINKEDIN}overlay/Certifications/{codigo}{_SUFIXO}"
+
+
+# Para adicionar um certificado, inclua um novo dicionário nesta lista.
+CERTIFICADOS = [
     {
         "titulo": "Power BI Avançado",
         "instituicao": "Expert Cursos",
         "emissao": "Outubro de 2026",
         "carga_horaria": "30 horas",
-        "link": "https://www.linkedin.com/in/wenndy-ferreira-875a32251/overlay/Certifications/309551067/treasury/?profileId=ACoAAD5ETVkBFr7TlzPb9cxU3x1tHE8kRnWQvvc"},
-    
+        "link": _link_certificado("309551067"),
+    },
     {
         "titulo": "Intensivão de Power BI",
         "instituicao": "Hashtag Treinamentos",
         "emissao": "Outubro de 2026",
         "carga_horaria": "8 horas",
-        "link": "https://www.linkedin.com/in/wenndy-ferreira-875a32251/overlay/Certifications/308618848/treasury/?profileId=ACoAAD5ETVkBFr7TlzPb9cxU3x1tHE8kRnWQvvc"},
-    
+        "link": _link_certificado("308618848"),
+    },
     {
         "titulo": "Python Fundamental 1",
         "instituicao": "IFSC | Aprenda Mais",
         "emissao": "Setembro de 2026",
         "carga_horaria": "20 horas",
-        "link": "https://www.linkedin.com/in/wenndy-ferreira-875a32251/overlay/Certifications/2016697874/treasury/?profileId=ACoAAD5ETVkBFr7TlzPb9cxU3x1tHE8kRnWQvvc"},
-
+        "link": _link_certificado("2016697874"),
+    },
     {
         "titulo": "Jornada Python",
         "instituicao": "Hashtag Treinamentos",
         "emissao": "Outubro de 2026",
         "carga_horaria": "8 horas",
-        "link": "https://www.linkedin.com/in/wenndy-ferreira-875a32251/overlay/Certifications/1443791811/treasury/?profileId=ACoAAD5ETVkBFr7TlzPb9cxU3x1tHE8kRnWQvvc"},
-
+        "link": _link_certificado("1443791811"),
+    },
     {
         "titulo": "Redes de Computadores",
         "instituicao": "IFRS",
         "emissao": "Setembro de 2026",
         "carga_horaria": "30 horas",
-        "link": "https://www.linkedin.com/in/wenndy-ferreira-875a32251/overlay/Certifications/60288213/treasury/?profileId=ACoAAD5ETVkBFr7TlzPb9cxU3x1tHE8kRnWQvvc"},
-
+        "link": _link_certificado("60288213"),
+    },
     {
         "titulo": "Excel Avançado",
         "instituicao": "Expert Cursos",
         "emissao": "Fevereiro de 2023",
         "carga_horaria": "30 horas",
-        "link": "https://www.linkedin.com/in/wenndy-ferreira-875a32251/overlay/Certifications/831595137/treasury/?profileId=ACoAAD5ETVkBFr7TlzPb9cxU3x1tHE8kRnWQvvc"}]
+        "link": _link_certificado("831595137"),
+    },
+]
 
-# RECORTAR IMAGEM DO BOTÃO
-@st.cache_data
-def preparar_imagem_botao(caminho, modificacao):
+MESES = {
+    "janeiro": 1, "fevereiro": 2, "março": 3, "abril": 4,
+    "maio": 5, "junho": 6, "julho": 7, "agosto": 8,
+    "setembro": 9, "outubro": 10, "novembro": 11, "dezembro": 12,
+}
 
+# Ícone usado quando a imagem BotaoCertificado.png não existe
+ICONE_PADRAO = (
+    '<svg viewBox="0 0 64 64" role="img" aria-hidden="true">'
+    f'<circle cx="32" cy="32" r="30" fill="none" stroke="{COR_DESTAQUE}" '
+    'stroke-width="3"/>'
+    f'<path d="M20 33l8 8 16-17" fill="none" stroke="{COR_DESTAQUE}" '
+    'stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'
+    "</svg>"
+)
+
+# ---------------------------------------------------------------------------
+# ESTILO
+# ---------------------------------------------------------------------------
+
+CSS = f"""
+<style>
+    .cert-titulo {{
+        font-size: 2.2rem;
+        font-weight: 750;
+        line-height: 1.15;
+        color: {COR_TEXTO};
+        margin: 0 0 0.4rem 0;
+    }}
+
+    .cert-linha {{
+        width: 64px;
+        height: 4px;
+        background: {COR_DESTAQUE};
+        border-radius: 999px;
+        margin-bottom: 0.9rem;
+    }}
+
+    .cert-descricao {{
+        max-width: 62ch;
+        color: {COR_TEXTO_SUAVE};
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin-bottom: 0.6rem;
+    }}
+
+    .cert-resumo {{
+        color: {COR_TEXTO};
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 1.6rem;
+    }}
+
+    .cert-grade {{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 18px;
+        margin-bottom: 2rem;
+    }}
+
+    .cert-card {{
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 20px;
+        background: {COR_FUNDO_CARD};
+        border: 1px solid {COR_BORDA};
+        border-radius: 14px;
+        transition: border-color 0.2s ease;
+    }}
+
+    .cert-card:hover {{
+        border-color: {COR_BORDA_HOVER};
+    }}
+
+    .cert-topo {{
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }}
+
+    .cert-icone {{
+        flex: 0 0 56px;
+        width: 56px;
+        height: 56px;
+    }}
+
+    .cert-icone img,
+    .cert-icone svg {{
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: contain;
+        border-radius: 50%;
+    }}
+
+    .cert-nome {{
+        color: {COR_TEXTO};
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 0;
+    }}
+
+    .cert-instituicao {{
+        color: {COR_TEXTO_SUAVE};
+        font-size: 0.88rem;
+        line-height: 1.4;
+        margin-top: 2px;
+    }}
+
+    .cert-meta {{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }}
+
+    .cert-tag {{
+        font-size: 0.78rem;
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        color: {COR_TEXTO};
+        background: rgba(220, 38, 38, 0.14);
+        border: 1px solid rgba(220, 38, 38, 0.35);
+    }}
+
+    .cert-acao {{
+        margin-top: auto;
+        display: block;
+        text-align: center;
+        padding: 0.55rem 1rem;
+        border-radius: 8px;
+        border: 1px solid {COR_BORDA};
+        color: {COR_TEXTO} !important;
+        font-size: 0.92rem;
+        font-weight: 600;
+        text-decoration: none !important;
+        transition: border-color 0.2s ease, color 0.2s ease;
+    }}
+
+    a.cert-acao:hover {{
+        border-color: {COR_DESTAQUE};
+        color: {COR_DESTAQUE} !important;
+    }}
+
+    a.cert-acao:focus-visible {{
+        outline: 2px solid {COR_DESTAQUE};
+        outline-offset: 3px;
+    }}
+
+    .cert-acao-inativa {{
+        color: {COR_TEXTO_SUAVE} !important;
+        cursor: default;
+        opacity: 0.7;
+    }}
+
+    @media (max-width: 550px) {{
+        .cert-titulo {{ font-size: 1.8rem; }}
+        .cert-grade {{ grid-template-columns: 1fr; }}
+    }}
+
+    @media (prefers-reduced-motion: reduce) {{
+        .cert-card, .cert-acao {{ transition: none; }}
+    }}
+</style>
+"""
+
+# ---------------------------------------------------------------------------
+# IMAGEM DO BOTÃO
+# ---------------------------------------------------------------------------
+
+
+@st.cache_data(show_spinner=False)
+def preparar_imagem_botao(caminho: str, modificacao: int) -> str:
+    """Recorta o botão pela borda vermelha, deixa o fundo transparente
+    fora do círculo e devolve a imagem em base64.
+
+    O parâmetro `modificacao` faz o cache atualizar quando o arquivo muda.
+    """
     with Image.open(caminho) as original:
         imagem = original.convert("RGBA")
 
-    largura, altura = imagem.size
+    dados = np.asarray(imagem).astype(np.int16)
+    r, g, b, a = dados[..., 0], dados[..., 1], dados[..., 2], dados[..., 3]
 
-# Localizar a borda vermelha do botão
-    pixels = imagem.load()
-    pontos = []
+    # Pixels da borda vermelha
+    mascara = (a > 100) & (r > 140) & (r > g * 1.6) & (r > b * 1.5)
+    ys, xs = np.nonzero(mascara)
 
-    for y in range(altura):
-        for x in range(largura):
+    altura, largura = dados.shape[:2]
 
-            r, g, b, a = pixels[x, y]
-
-            if (a > 100 and r > 140 and r > g * 1.6 and r > b * 1.5):
-                pontos.append((x, y))
-
-    if pontos:
-
-        esquerda = min(p[0] for p in pontos)
-        direita = max(p[0] for p in pontos)
-        topo = min(p[1] for p in pontos)
-        baixo = max(p[1] for p in pontos)
-
-        centro_x = (esquerda + direita) // 2
-        centro_y = (topo + baixo) // 2
-
-        tamanho = max(direita - esquerda, baixo - topo)
-
-# Pequena margem para preservar a borda
-        tamanho = int(tamanho * 1.12)
-
+    if xs.size:
+        esquerda, direita = xs.min(), xs.max()
+        topo, baixo = ys.min(), ys.max()
+        centro_x = int((esquerda + direita) // 2)
+        centro_y = int((topo + baixo) // 2)
+        # Margem pequena para preservar a borda
+        tamanho = int(max(direita - esquerda, baixo - topo) * 1.12)
     else:
-
         # Recorte central caso não encontre a borda
-        centro_x = largura // 2
-        centro_y = altura // 2
+        centro_x, centro_y = largura // 2, altura // 2
         tamanho = min(largura, altura) // 2
 
-    metade = tamanho // 2
-
+    metade = max(tamanho // 2, 1)
     imagem = imagem.crop((
         centro_x - metade,
         centro_y - metade,
         centro_x + metade,
-        centro_y + metade))
+        centro_y + metade,
+    )).resize((240, 240), Image.Resampling.LANCZOS)
 
-    imagem = imagem.resize((240, 240), Image.Resampling.LANCZOS)
-
-# Remover o fundo externo ao círculo
-    pixels = imagem.load()
-    centro = 120
-    raio = 116
-
-    for y in range(240):
-        for x in range(240):
-
-            distancia = ((x - centro) ** 2 + (y - centro) ** 2) ** 0.5
-
-            if distancia > raio:
-                r, g, b, _ = pixels[x, y]
-                pixels[x, y] = (r, g, b, 0)
+    # Remove o fundo externo ao círculo
+    pixels = np.array(imagem)
+    yy, xx = np.ogrid[:240, :240]
+    fora = (xx - 120) ** 2 + (yy - 120) ** 2 > 116 ** 2
+    pixels[fora, 3] = 0
 
     buffer = BytesIO()
-    imagem.save(buffer, format="PNG")
-
+    Image.fromarray(pixels, "RGBA").save(buffer, format="PNG")
     return base64.b64encode(buffer.getvalue()).decode("utf-8")
 
-# FUNÇÃO PRINCIPAL
-def exibir_certificados():
-  
-    # ESTILO VISUAL
-    st.markdown("""<style>
 
-    .cert-titulo {
-        font-size: 34px;
-        font-weight: 750;
-        color: #FFFFFF;
-        margin-bottom: 10px;}
-
-    .cert-linha {
-        width: 65px;
-        height: 4px;
-        background: #DC2626;
-        border-radius: 10px;
-        margin-bottom: 20px;}
-
-    .cert-descricao {
-        font-size: 16px;
-        line-height: 1.8;
-        color: #BDBDBD;
-        margin-bottom: 30px;}
-
-    /* CERTIFICADOS EM UMA ÚNICA LINHA */
-
- 
-.cert-grade {
-    display: flex;
-    flex-wrap: nowrap;
-    width: 100%;
-    max-width: 100%;
-    gap: 24px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 15px 5px 25px;
-    margin-top: 20px;
-    margin-bottom: 30px;
-    box-sizing: border-box;
-    scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: #DC2626 #202020;}
-
-.cert-item {
-    flex: 0 0 190px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    text-align: center;
-    gap: 12px; min-width: 0;}
-
-    /* BARRA DE ROLAGEM VERMELHA */
-
-    .cert-grade::-webkit-scrollbar {
-        height: 7px;}
-
-    .cert-grade::-webkit-scrollbar-track {
-        background: #202020;
-        border-radius: 10px;}
-
-    .cert-grade::-webkit-scrollbar-thumb {
-        background: #DC2626;
-        border-radius: 10px;}
-
-    /* BOTÃO REDONDO */
-
-    .cert-botao {
-        width: 100px;
-        height: 100px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        text-decoration: none;
-        transition: transform 0.25s ease;}
-
-    .cert-botao img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        border-radius: 50%;
-        display: block;}
-
-    .cert-botao:hover {
-        transform: scale(1.08);}
-
-    .cert-botao:focus-visible {
-        outline: 2px solid #DC2626;
-        outline-offset: 5px;}
-
-    .cert-botao-inativo {
-        cursor: default;
-        opacity: 0.65;}
-
-    .cert-botao-inativo:hover {
-        transform: none;}
-
-    /* NOME CENTRALIZADO */
-
-    .cert-nome {
-        color: #FFFFFF;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.5;
-        text-align: center;
-        width: 100%;
-        margin: 0;}
-
-    .cert-instituicao {
-        color: #A0A0A0;
-        font-size: 12px;
-        text-align: center;
-        line-height: 1.4;}
-
-    /* RESPONSIVIDADE PARA CELULARES */
-
-    @media (max-width: 550px) {
-        .cert-grade {
-            gap: 15px;}
-
-        .cert-item {
-            flex: 0 0 125px;}
-
-        .cert-botao {
-            width: 85px;
-            height: 85px;}
-
-        .cert-nome {
-            font-size: 12px;}
-    } </style>""", unsafe_allow_html=True)
-
-# TÍTULO
-
-    st.markdown("""
-    <div class="cert-titulo">Certificações e Formação Complementar:</div>
-
-    <div class="cert-linha"></div>
-
-    <div class="cert-descricao">
-        Cursos e certificações que complementam minha
-        formação acadêmica e meu desenvolvimento profissional.
-    </div>""", unsafe_allow_html=True)
-
-# CARREGAR IMAGEM
+def _icone_html(titulo: str) -> str:
+    """Devolve o HTML do ícone do cartão (imagem ou ícone padrão)."""
     if not IMAGEM_BOTAO.exists():
-        st.warning("Imagem BotaoCertificado.png não encontrada.")
-        return
+        return ICONE_PADRAO
 
     imagem_base64 = preparar_imagem_botao(
-        str(IMAGEM_BOTAO),
-        IMAGEM_BOTAO.stat().st_mtime_ns)
+        str(IMAGEM_BOTAO), IMAGEM_BOTAO.stat().st_mtime_ns
+    )
+    return (
+        f'<img src="data:image/png;base64,{imagem_base64}" '
+        f'alt="Ícone do certificado {titulo}">'
+    )
 
-# BOTÕES COM LINKS EXTERNOS
-    cards_html = []
 
-    for certificado in certificados:
+# ---------------------------------------------------------------------------
+# DADOS
+# ---------------------------------------------------------------------------
 
-        titulo = escape(certificado["titulo"])
-        instituicao = escape(certificado["instituicao"])
 
-        link = certificado.get("link", "").strip()
+def _chave_data(certificado: dict) -> tuple:
+    """Transforma 'Outubro de 2026' em (2026, 10) para ordenar."""
+    texto = certificado.get("emissao", "").lower()
+    ano = re.search(r"\d{4}", texto)
+    mes = next((n for nome, n in MESES.items() if nome in texto), 0)
+    return (int(ano.group()) if ano else 0, mes)
 
-        imagem_html = (
-            f'<img src="data:image/png;base64,{imagem_base64}" '
-            f'alt="Acessar certificado de {titulo}">')
 
-        if link.startswith(("https://", "http://")):
+def _horas(certificado: dict) -> int:
+    numero = re.search(r"\d+", certificado.get("carga_horaria", ""))
+    return int(numero.group()) if numero else 0
 
-            botao_html = (
-                f'<a class="cert-botao" '
-                f'href="{escape(link, quote=True)}" '
-                f'target="_blank" '
-                f'rel="noopener noreferrer" '
-                f'aria-label="Visualizar certificado de {titulo}">'
-                f'{imagem_html}'
-                '</a>')
 
-        else:
+def _certificados_ordenados() -> list:
+    if ORDENAR_POR_DATA:
+        return sorted(CERTIFICADOS, key=_chave_data, reverse=True)
+    return list(CERTIFICADOS)
 
-            botao_html = (
-                '<div class="cert-botao cert-botao-inativo" '
-                'title="Link do certificado ainda não cadastrado">'
-                f'{imagem_html}'
-                '</div>')
 
-        cards_html.append(
-            '<div class="cert-item">'
-            f'{botao_html}'
-            f'<div class="cert-nome">{titulo}</div>'
-            f'<div class="cert-instituicao">{instituicao}</div>'
-            '</div>')
+# ---------------------------------------------------------------------------
+# COMPONENTES
+# ---------------------------------------------------------------------------
+
+
+def _cartao_html(certificado: dict) -> str:
+    titulo = escape(certificado["titulo"])
+    instituicao = escape(certificado["instituicao"])
+    emissao = escape(certificado.get("emissao", ""))
+    carga = escape(certificado.get("carga_horaria", ""))
+    link = certificado.get("link", "").strip()
+
+    tags = "".join(
+        f'<span class="cert-tag">{texto}</span>'
+        for texto in (emissao, carga)
+        if texto
+    )
+
+    if link.startswith(("https://", "http://")):
+        acao = (
+            f'<a class="cert-acao" href="{escape(link, quote=True)}" '
+            'target="_blank" rel="noopener noreferrer" '
+            f'aria-label="Ver certificado de {titulo}">'
+            "Ver certificado</a>"
+        )
+    else:
+        acao = (
+            '<span class="cert-acao cert-acao-inativa" '
+            'title="Link do certificado ainda não cadastrado">'
+            "Link indisponível</span>"
+        )
+
+    return (
+        '<div class="cert-card">'
+        '<div class="cert-topo">'
+        f'<div class="cert-icone">{_icone_html(titulo)}</div>'
+        "<div>"
+        f'<div class="cert-nome">{titulo}</div>'
+        f'<div class="cert-instituicao">{instituicao}</div>'
+        "</div>"
+        "</div>"
+        f'<div class="cert-meta">{tags}</div>'
+        f"{acao}"
+        "</div>"
+    )
+
+
+def _cabecalho(total: int, horas: int) -> str:
+    resumo = f"{total} certificados, {horas} horas de estudo"
+    return (
+        '<div class="cert-titulo">Certificações e formação complementar</div>'
+        '<div class="cert-linha"></div>'
+        '<div class="cert-descricao">'
+        "Cursos e certificações que complementam minha formação "
+        "acadêmica e meu desenvolvimento profissional."
+        "</div>"
+        f'<div class="cert-resumo">{resumo}</div>'
+    )
+
+
+# ---------------------------------------------------------------------------
+# PÁGINA PRINCIPAL
+# ---------------------------------------------------------------------------
+
+
+def exibir_certificados() -> None:
+    st.markdown(CSS, unsafe_allow_html=True)
+
+    certificados = _certificados_ordenados()
+    horas_totais = sum(_horas(c) for c in certificados)
 
     st.markdown(
-        '<div class="cert-grade">'
-        + "".join(cards_html)
-        + '</div>',
-        unsafe_allow_html=True)
+        _cabecalho(len(certificados), horas_totais),
+        unsafe_allow_html=True,
+    )
+
+    cartoes = "".join(_cartao_html(c) for c in certificados)
+    st.markdown(
+        f'<div class="cert-grade">{cartoes}</div>',
+        unsafe_allow_html=True,
+    )
