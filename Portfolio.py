@@ -247,7 +247,7 @@ with col3:
 
     st.link_button(
         "✉️ Enviar e-mail",
-        "mailto:Wendnyferreira45@gmail.com", use_container_width=True)
+        "mailto:Wenndyferreira45@gmail.com", use_container_width=True)
 
 with col4:
     st.subheader("Telefone:")
