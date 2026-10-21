@@ -54,7 +54,7 @@ CERTIFICADOS = [
         "link": _link_certificado("1443791811"),},
 
        {"titulo": "Redes de Computadores",
-        "instituicao": "IFRS",
+        "instituicao": "IFSC | Aprenda Mais",
         "emissao": "Setembro de 2026",
         "carga_horaria": "30 horas",
         "link": _link_certificado("60288213"),},
@@ -66,10 +66,10 @@ CERTIFICADOS = [
         "link": _link_certificado("831595137"),},
 
        {"titulo": "Python Fundamental 2",
-        "instituicao": "IFRS",
+        "instituicao": "IFSC | Aprenda Mais",
         "emissao": "Outubro de 2026",
         "carga_horaria": "30 horas",
-         "link": _link_certificado("1604438626"),},]
+         "link": _link_certificado("1604438626"),}]
 
 MESES = {
     "janeiro": 1, "fevereiro": 2, "março": 3, "abril": 4,
