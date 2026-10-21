@@ -10,7 +10,7 @@ competencias = [
             ("✓", "Desenvolvimento de aplicações com Inteligência Artificial."),
              ("✓", "Integração de modelos de IA por meio de APIs."),
             ("✓", "Criação de chatbots e assistentes virtuais inteligentes."),
-            ("✓", "- Automação de processos utilizando Inteligência Artificial.")]},
+            ("✓", "Automação de processos utilizando Inteligência Artificial.")]},
 
        {"titulo": "Análise de Dados",
         "icone": "🗄️",
