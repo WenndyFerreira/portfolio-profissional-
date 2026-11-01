@@ -69,7 +69,7 @@ CERTIFICADOS = [
         "instituicao": "IFSC | Aprenda Mais",
         "emissao": "Outubro de 2026",
         "carga_horaria": "30 horas",
-         "link": _link_certificado("1604438626"),},
+        "link": _link_certificado("1604438626"),},
 
        {"titulo": "Intensivão de Claude",
         "instituicao": "Hashtag Treinamentos",
@@ -122,12 +122,33 @@ CSS = f"""
         margin-bottom: 1.6rem;}}
 
     .cert-grade {{
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        display: flex;
+        flex-wrap: nowrap;
         gap: 18px;
-        margin-bottom: 2rem;}}
+        overflow-x: auto;
+        padding-bottom: 14px;
+        margin-bottom: 2rem;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: thin;
+        scrollbar-color: {COR_DESTAQUE} rgba(255, 255, 255, 0.08);}}
+
+    .cert-grade::-webkit-scrollbar {{
+        height: 8px;}}
+
+    .cert-grade::-webkit-scrollbar-track {{
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 999px;}}
+
+    .cert-grade::-webkit-scrollbar-thumb {{
+        background: {COR_DESTAQUE};
+        border-radius: 999px;}}
+
+    .cert-grade::-webkit-scrollbar-thumb:hover {{
+        background: #EF4444;}}
 
     .cert-card {{
+        flex: 0 0 300px;
+        scroll-snap-align: start;
         display: flex;
         flex-direction: column;
         gap: 14px;
@@ -212,7 +233,7 @@ CSS = f"""
 
     @media (max-width: 550px) {{
         .cert-titulo {{ font-size: 1.8rem; }}
-        .cert-grade {{ grid-template-columns: 1fr; }}}}
+        .cert-card {{ flex: 0 0 260px; }}}}
 
     @media (prefers-reduced-motion: reduce) {{
         .cert-card, .cert-acao {{ transition: none; }}}}
