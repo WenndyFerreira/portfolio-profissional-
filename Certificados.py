@@ -69,7 +69,13 @@ CERTIFICADOS = [
         "instituicao": "IFSC | Aprenda Mais",
         "emissao": "Outubro de 2026",
         "carga_horaria": "30 horas",
-         "link": _link_certificado("1604438626"),}]
+         "link": _link_certificado("1604438626"),},
+
+       {"titulo": "Intensivão de Claude",
+        "instituicao": "Hashtag Treinamentos",
+        "emissao": "Outubro de 2026",
+        "carga_horaria": "8 horas",
+        "link": _link_certificado("400299676"),}]
 
 MESES = {
     "janeiro": 1, "fevereiro": 2, "março": 3, "abril": 4,
