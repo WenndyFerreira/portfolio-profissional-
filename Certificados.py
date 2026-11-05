@@ -75,7 +75,13 @@ CERTIFICADOS = [
         "instituicao": "Hashtag Treinamentos",
         "emissao": "Outubro de 2026",
         "carga_horaria": "8 horas",
-        "link": _link_certificado("400299676"),}]
+        "link": _link_certificado("400299676"),},
+
+       {"titulo": "Imersão Engenharia de Software",
+        "instituicao": "Alura",
+        "emissao": "Outubro de 2026",
+        "carga_horaria": "4 horas",
+        "link": _link_certificado("692493488"),}]
 
 MESES = {
     "janeiro": 1, "fevereiro": 2, "março": 3, "abril": 4,
